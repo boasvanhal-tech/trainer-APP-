@@ -1,0 +1,12 @@
+{
+  "name": "vormkracht-server",
+  "version": "1.0.0",
+  "description": "Server for Trainers App: hosts the app and stores training plans, nutrition, planner and workout history centrally.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2"
+  }
+}

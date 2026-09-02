@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shared Training Plan — Trainers App</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Space+Mono:wght@400;700&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#ffffff; --ink:#000000; --turq:#1bc5b4; --turq-bright:#0e9d8f; --muted:#5c7f7a;
+    --shadow: 6px 6px 0 var(--ink);
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; background:var(--bg); color:var(--turq); font-family:'Work Sans', sans-serif;
+    min-height:100vh;
+  }
+  h1,h2,.display{ font-family:'Anton', sans-serif; text-transform:uppercase; letter-spacing:0.5px; margin:0; color:var(--turq-bright); }
+  .mono{font-family:'Space Mono', monospace;}
+  header{ padding:24px 20px; border-bottom:4px solid var(--ink); }
+  header .brand{ font-size:clamp(24px,6vw,36px); color:var(--turq-bright); }
+  header .brand span{ color:var(--turq); }
+  main{ max-width:720px; margin:0 auto; padding:22px 18px 60px; }
+  .card{ background:var(--bg); border:3px solid var(--ink); box-shadow:var(--shadow); padding:18px; margin-bottom:20px; }
+  .meta{ font-size:11px; color:var(--muted); text-transform:uppercase; margin-bottom:14px; }
+  .ex{ border:2px dashed var(--ink); padding:12px; margin-bottom:12px; }
+  .ex .name{ font-size:18px; font-weight:700; color:var(--turq-bright); }
+  .ex .sub{ font-size:12px; color:var(--muted); font-style:italic; margin:2px 0 8px; }
+  .ex .stats{ font-family:'Space Mono',monospace; font-size:13px; }
+  .empty, .error{ color:var(--muted); font-style:italic; padding:30px 0; text-align:center; }
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">TRAINERS<span> APP</span></div>
+</header>
+<main>
+  <div id="content" class="card"><div class="empty">Loading plan...</div></div>
+</main>
+<script>
+(async function(){
+  const params = new URLSearchParams(window.location.search);
+  const token = params.get('token');
+  const el = document.getElementById('content');
+  if(!token){
+    el.innerHTML = '<div class="error">No plan link provided.</div>';
+    return;
+  }
+  try{
+    const res = await fetch('/api/share/' + encodeURIComponent(token));
+    if(!res.ok) throw new Error('not found');
+    const plan = await res.json();
+    el.innerHTML = `
+      <h2>${plan.name}</h2>
+      <div class="meta">${plan.type} · ${plan.oefeningen.length} exercises</div>
+      ${plan.oefeningen.map(o => `
+        <div class="ex">
+          <div class="name">${o.naam}</div>
+          <div class="sub">${o.spier||''}${o.beweging?' · '+o.beweging:''}</div>
+          <div class="stats">${o.sets}×${o.reps} · rest ${o.rust||'-'}</div>
+        </div>`).join('')}
+    `;
+  }catch(e){
+    el.innerHTML = '<div class="error">This link is invalid or no longer available.</div>';
+  }
+})();
+</script>
+</body>
+</html>
